@@ -5,8 +5,87 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Synesthesia.App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Synesthesia Player" Height="500" Width="800"
+        Background="#FF1E1E1E">
+    
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Área de visualização -->
+        <Border Grid.Row="0" Background="Black" Margin="10">
+            <TextBlock Text="🎵 Área de Visualização 🎵" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center"
+                       Foreground="Gray" 
+                       FontSize="24"/>
+        </Border>
+        
+        <!-- Informações da música -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,5" HorizontalAlignment="Center">
+            <Label x:Name="fileNameLabel" Content="Nenhum arquivo selecionado" 
+                   Foreground="White" FontWeight="Bold" FontSize="14"/>
+        </StackPanel>
+        
+        <!-- Controles de posição -->
+        <Grid Grid.Row="2" Margin="10,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Label x:Name="currentTimeLabel" Grid.Column="0" Content="00:00" 
+                   Foreground="White" VerticalAlignment="Center"/>
+            
+            <Slider x:Name="positionSlider" Grid.Column="1" 
+                    Minimum="0" Maximum="100" Value="0"
+                    Margin="10,0" VerticalAlignment="Center"
+                    ValueChanged="PositionSlider_ValueChanged"/>
+            
+            <Label x:Name="totalTimeLabel" Grid.Column="2" Content="00:00" 
+                   Foreground="White" VerticalAlignment="Center"/>
+        </Grid>
+        
+        <!-- Controles de reprodução -->
+        <Grid Grid.Row="3" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Botões de controle -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="openButton" Content="📁" 
+                        Width="50" Height="40" Margin="5"
+                        Click="OpenButton_Click"
+                        FontSize="16" Background="#FF444444" Foreground="White"/>
+                
+                <Button x:Name="playButton" Content="▶" 
+                        Width="60" Height="40" Margin="5"
+                        Click="PlayButton_Click" IsEnabled="False"
+                        FontSize="16" Background="#FF0078D4" Foreground="White"/>
+                
+                <Button x:Name="stopButton" Content="⏹" 
+                        Width="50" Height="40" Margin="5"
+                        Click="StopButton_Click" IsEnabled="False"
+                        FontSize="16" Background="#FF444444" Foreground="White"/>
+            </StackPanel>
+            
+            <!-- Controle de volume -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" 
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Label Content="🔊" Foreground="White" VerticalAlignment="Center"/>
+                <Slider x:Name="volumeSlider" Width="100" 
+                        Minimum="0" Maximum="100" Value="50"
+                        VerticalAlignment="Center"
+                        ValueChanged="VolumeSlider_ValueChanged"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
