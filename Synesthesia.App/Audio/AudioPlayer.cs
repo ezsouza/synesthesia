@@ -8,6 +8,7 @@ namespace Synesthesia.App.Audio
     {
         private WaveOutEvent? outputDevice;
         private AudioFileReader? audioFile;
+        private AudioAnalyzer? analyzer;
         private bool isDisposed = false;
 
         public event EventHandler<PlaybackStateChangedEventArgs>? PlaybackStateChanged;
@@ -17,19 +18,22 @@ namespace Synesthesia.App.Audio
         public bool IsPlaying => outputDevice?.PlaybackState == PlaybackState.Playing;
         public bool IsPaused => outputDevice?.PlaybackState == PlaybackState.Paused;
         public bool IsLoaded => audioFile != null;
-        
+
         public TimeSpan CurrentTime => audioFile?.CurrentTime ?? TimeSpan.Zero;
         public TimeSpan TotalTime => audioFile?.TotalTime ?? TimeSpan.Zero;
-        
-        public float Volume 
-        { 
+
+        public float Volume
+        {
             get => outputDevice?.Volume ?? 0f;
-            set 
+            set
             {
                 if (outputDevice != null)
                     outputDevice.Volume = Math.Clamp(value, 0f, 1f);
             }
         }
+
+        // Expor o analisador externo para uso nos visuais
+        public AudioAnalyzer? Analyzer => analyzer;
 
         public void Load(string filePath)
         {
@@ -41,14 +45,18 @@ namespace Synesthesia.App.Audio
                 throw new NotSupportedException($"Formato não suportado: {extension}");
 
             Dispose(); // Limpa recursos anteriores
-            
+
             try
             {
                 audioFile = new AudioFileReader(filePath);
+                analyzer = new AudioAnalyzer();
+
+                // Conecta o agregador de samples ao analisador
+                var sampleAggregator = new SampleAggregator(audioFile, analyzer);
+
                 outputDevice = new WaveOutEvent();
-                outputDevice.Init(audioFile);
-                
-                // Configurar eventos
+                outputDevice.Init(sampleAggregator);
+
                 outputDevice.PlaybackStopped += OnPlaybackStopped;
             }
             catch (Exception ex)
@@ -82,7 +90,7 @@ namespace Synesthesia.App.Audio
             {
                 outputDevice.Stop();
                 if (audioFile != null)
-                    audioFile.Position = 0; // Volta para o início
+                    audioFile.Position = 0;
                 PlaybackStateChanged?.Invoke(this, new PlaybackStateChangedEventArgs(PlaybackState.Stopped));
             }
         }
@@ -118,6 +126,7 @@ namespace Synesthesia.App.Audio
                 audioFile?.Dispose();
                 outputDevice = null;
                 audioFile = null;
+                analyzer = null;
                 isDisposed = true;
             }
         }
@@ -126,7 +135,7 @@ namespace Synesthesia.App.Audio
     public class PlaybackStateChangedEventArgs : EventArgs
     {
         public PlaybackState State { get; }
-        
+
         public PlaybackStateChangedEventArgs(PlaybackState state)
         {
             State = state;
