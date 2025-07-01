@@ -21,6 +21,7 @@ namespace Synesthesia.Tests.Visuals
                 };
 
                 var engine = new VisualEngine(canvas);
+                engine.AddVisualizer("Bars", new BarsVisualizer(canvas));
 
                 float[] spectrum = new float[64];
                 for (int i = 0; i < spectrum.Length; i++)
@@ -54,6 +55,7 @@ namespace Synesthesia.Tests.Visuals
                     Height = 400
                 };
                 var engine = new VisualEngine(canvas);
+                engine.AddVisualizer("Bars", new BarsVisualizer(canvas));
 
                 canvas.Children.Add(new Rectangle()); // conteúdo prévio
                 Assert.Single(canvas.Children);
@@ -77,6 +79,7 @@ namespace Synesthesia.Tests.Visuals
             {
                 var canvas = new Canvas { Width = 0, Height = 0 };
                 var engine = new VisualEngine(canvas);
+                engine.AddVisualizer("Bars", new BarsVisualizer(canvas));
 
                 // Não deve lançar exceção se o canvas não estiver pronto ou espectro for nulo
                 var ex1 = Xunit.Record.Exception(() => engine.Render(null!));
@@ -102,6 +105,7 @@ namespace Synesthesia.Tests.Visuals
                 canvas.Children.Add(new Rectangle());
 
                 var engine = new VisualEngine(canvas);
+                engine.AddVisualizer("Bars", new BarsVisualizer(canvas));
 
                 // Act
                 engine.Clear();
