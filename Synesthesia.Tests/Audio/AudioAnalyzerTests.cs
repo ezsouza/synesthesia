@@ -21,7 +21,7 @@ namespace Synesthesia.Tests.Audio
             var analyzer = new AudioAnalyzer();
             var smallBuffer = new float[128]; // menor que 1024
 
-            Exception? ex = Record.Exception(() => analyzer.Analyze(smallBuffer));
+            Exception? ex = Xunit.Record.Exception(() => analyzer.Analyze(smallBuffer));
             Assert.Null(ex);
         }
 
