@@ -1,12 +1,10 @@
 ﻿using Microsoft.Win32;
 using Synesthesia.App.Audio;
-using System;
-using System.IO;
+using Synesthesia.App.Visuals;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using NAudio.Wave;
-using System.Windows.Shapes;
-using System.Windows.Media;
 
 namespace Synesthesia.App
 {
@@ -15,6 +13,7 @@ namespace Synesthesia.App
         private readonly AudioPlayer audioPlayer;
         private readonly DispatcherTimer positionTimer;
         private readonly DispatcherTimer visualizerTimer;
+        private readonly VisualEngine visualEngine;
 
         public MainWindow()
         {
@@ -23,6 +22,8 @@ namespace Synesthesia.App
             audioPlayer = new AudioPlayer();
             audioPlayer.PlaybackStateChanged += OnPlaybackStateChanged;
             audioPlayer.PlaybackStopped += OnPlaybackStopped;
+
+            visualEngine = new VisualEngine(visualizerCanvas);
 
             positionTimer = new DispatcherTimer
             {
@@ -35,6 +36,16 @@ namespace Synesthesia.App
                 Interval = TimeSpan.FromMilliseconds(33) // ~30 FPS
             };
             visualizerTimer.Tick += UpdateVisualizer;
+        }
+
+        // Usado diretamente no XAML
+        private void VisualizerSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (visualizerSelector.SelectedItem is ComboBoxItem selectedItem)
+            {
+                string effect = selectedItem.Content.ToString() ?? "Bars";
+                visualEngine.SetVisualizer(effect);
+            }
         }
 
         private void OnPlaybackStateChanged(object? sender, PlaybackStateChangedEventArgs e)
@@ -87,34 +98,15 @@ namespace Synesthesia.App
 
         private void UpdateVisualizer(object? sender, EventArgs e)
         {
-            if (audioPlayer.Analyzer?.SpectrumData == null)
-                return;
+            var spectrum = audioPlayer.Analyzer?.SpectrumData;
 
-            var spectrum = audioPlayer.Analyzer.SpectrumData;
-            if (spectrum.Length == 0 || visualizerCanvas.ActualWidth == 0)
-                return;
-
-            visualizerCanvas.Children.Clear();
-
-            int barCount = spectrum.Length;
-            double canvasWidth = visualizerCanvas.ActualWidth;
-            double canvasHeight = visualizerCanvas.ActualHeight;
-            double barWidth = canvasWidth / barCount;
-
-            for (int i = 0; i < barCount; i++)
+            if (spectrum == null || spectrum.Length == 0 || visualizerCanvas.ActualWidth == 0)
             {
-                double magnitude = Math.Clamp(spectrum[i] * 10, 2, canvasHeight);
-                var bar = new Rectangle
-                {
-                    Width = barWidth - 1,
-                    Height = magnitude,
-                    Fill = Brushes.LimeGreen
-                };
-
-                System.Windows.Controls.Canvas.SetLeft(bar, i * barWidth);
-                System.Windows.Controls.Canvas.SetTop(bar, canvasHeight - magnitude);
-                visualizerCanvas.Children.Add(bar);
+                visualEngine.Clear();
+                return;
             }
+
+            visualEngine.Render(spectrum);
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)

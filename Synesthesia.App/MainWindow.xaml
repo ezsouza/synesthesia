@@ -23,10 +23,18 @@
                 Margin="10"
                 SnapsToDevicePixels="True" />
 
-        <!-- Informações da música -->
+        <!-- Informações da música e combo de visualização -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,5" HorizontalAlignment="Center">
             <Label x:Name="fileNameLabel" Content="Nenhum arquivo selecionado"
-                   Foreground="White" FontWeight="Bold" FontSize="14"/>
+                   Foreground="White" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
+            
+            <ComboBox x:Name="visualizerSelector"
+                      Width="160" Margin="0,6,0,0"
+                      SelectionChanged="VisualizerSelector_SelectionChanged">
+                <ComboBoxItem Content="Bars" IsSelected="True"/>
+                <ComboBoxItem Content="Wave"/>
+                <ComboBoxItem Content="Kaleido"/>
+            </ComboBox>
         </StackPanel>
 
         <!-- Controles de posição -->
