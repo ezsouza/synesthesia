@@ -1,8 +1,8 @@
-using Xunit;
-using System.Windows.Controls;
-using Synesthesia.App.Visuals;
 using System.Threading;
+using System.Windows.Controls;
 using Moq;
+using Synesthesia.App.Visuals;
+using Xunit;
 
 namespace Synesthesia.Tests.Visuals
 {
@@ -14,11 +14,11 @@ namespace Synesthesia.Tests.Visuals
         private class MockVisualizer : BaseVisualizer
         {
             public bool RenderCalled { get; private set; } = false;
-            public bool ClearCalled { get; private set; } = false;
+            public bool ClearCalled { get; set; } = false; // Propriedade com set público
             public float[]? LastSpectrum { get; private set; } = null;
 
-            // Use null instead of actual Canvas to avoid STA thread requirement
-            public MockVisualizer() : base(null) { }
+            // Passa valor padrão para o construtor base
+            public MockVisualizer() : base(default!) { }
 
             public override void Render(float[] spectrum)
             {
@@ -37,7 +37,7 @@ namespace Synesthesia.Tests.Visuals
         {
             // Arrange
             var visualizer = new MockVisualizer();
-            
+
             // Verify flag is initially false
             Assert.False(visualizer.ClearCalled);
 
@@ -51,20 +51,17 @@ namespace Synesthesia.Tests.Visuals
         [Fact]
         public void Clear_Should_Be_Idempotent()
         {
-            // Arrange
             var visualizer = new MockVisualizer();
-            
-            // Act
+
             visualizer.Clear();
             bool firstCallResult = visualizer.ClearCalled;
-            
-            // Reset flag to test second call
-            typeof(MockVisualizer).GetProperty("ClearCalled").SetValue(visualizer, false);
-            
+
+            // Reseta a flag para testar segunda chamada
+            visualizer.ClearCalled = false;
+
             visualizer.Clear();
             bool secondCallResult = visualizer.ClearCalled;
 
-            // Assert
             Assert.True(firstCallResult);
             Assert.True(secondCallResult);
         }
@@ -74,7 +71,7 @@ namespace Synesthesia.Tests.Visuals
         {
             // Arrange
             var visualizer = new MockVisualizer();
-            
+
             // Act
             visualizer.Clear();
 
@@ -88,7 +85,7 @@ namespace Synesthesia.Tests.Visuals
         {
             // Arrange
             var visualizer = new MockVisualizer();
-            
+
             // Act
             visualizer.Clear();
             visualizer.Render(new float[] { 0.1f, 0.2f });
